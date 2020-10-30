@@ -1,6 +1,9 @@
 ##Szerveroldali JS házi
+
 ######Pete Dávid – GVJ529
+
 ####Pásztorok és az állataik
+
 A rendszerem nyilván fog tudni tartani pásztorokat, és azt, hogy nekik milyen állatokról kell
 gondoskodniuk.
 
