@@ -1,3 +1,14 @@
+//const animalModel = require('./models/animal');
+/*let animal = new animalModel();
+animal.name = "Kecske";
+animal.avg_cost = 223;
+animal.save((e) => console.log(e));
+
+
+animalModel.find({}, (e, d) => {console.log(d)});
+*/
+
+
 const express = require('express');
 const app = express();
 

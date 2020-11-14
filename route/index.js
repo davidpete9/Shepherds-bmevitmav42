@@ -16,12 +16,7 @@ const deleteShepherdAnimal = require('../middleware/shepherd/deleteShepherdAnima
 module.exports = function (app) {
     const objRepo = {};
 
-   app.get('/',
-       checkPassMW(objRepo),
-       function (req, res, next) {
-           res.redirect('/list');
-       }
-   );
+
 
    /* ------------------------------ PASZTOROK -------------------------------- */
 
@@ -97,5 +92,12 @@ module.exports = function (app) {
         getAnimal(objRepo),
         deleteAnimal(objRepo));
 
+
+    app.get('/',
+        checkPassMW(objRepo),
+        function (req, res, next) {
+            res.redirect('/list');
+        }
+    );
 
 };
