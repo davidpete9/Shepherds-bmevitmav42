@@ -11,6 +11,8 @@ const requireOption = require('../requireOption');
 
 const hasEntityInObj = require('../hasEntityInObj');
 
+const fs = require('fs');
+
 module.exports = function (objectrepository) {
     const animalModel = requireOption(objectrepository, 'shepherdModel');
     return function (req, res, next) {
@@ -27,12 +29,16 @@ module.exports = function (objectrepository) {
         } else if (req.method === 'POST') {
             if (hasEntityInObj(req.body, 'shepherd')) { //erkezett valid pasztor a req-bol
                 let toBeSaved = null;
-                if (req.body.hasOwnProperty('_id') && !!req.body._id) {
+                if (!!res.locals.shepherd) { // ha mar be van toltva, akkor biztos, hogy modisitas van
                     toBeSaved = res.locals.shepherd;
                     toBeSaved.name = req.body.name;
                     toBeSaved.area = req.body.area;
                     toBeSaved.born = req.body.born;
                     toBeSaved.address = req.body.address;
+                    if (!!res.locals.uploaded_image_path) {
+                        toBeSaved.image_path = res.locals.uploaded_image_path; //ha a foto modositom torlom a regit
+                        fs.unlink('./public' + toBeSaved.image_path, function () {});
+                    }
                 } else {
                     toBeSaved = new animalModel({
                         name: req.body.name,
@@ -40,14 +46,14 @@ module.exports = function (objectrepository) {
                         born: req.body.born,
                         address: req.body.address
                     });
+                    if (!!res.locals.uploaded_image_path) {
+                        toBeSaved.image_path = res.locals.uploaded_image_path;
+                    }
                 }
-                if (!!req.body['profile_img'] && !!res.locals.uploaded_image_path) {
-                    toBeSaved.image_path = res.locals.uploaded_image_path;
-                    res.locals.uploaded_image_path = null;
-                }
+
                 toBeSaved.save(function (err, doc) {
                     if (!!err) {
-                        res.status(400).send({message: "Nem sikerült a hozzaadas"});
+                        res.status(400).json({message: "Nem sikerült a hozzaadas"});
                         return;
                     }
                     return res.redirect('/list');
@@ -55,7 +61,7 @@ module.exports = function (objectrepository) {
             }
 
         } else {
-            res.status(400).send('Not valid sherpherd...');
+            res.status(400).json({message: 'Not valid sherpherd...'});
         }
     }
 };

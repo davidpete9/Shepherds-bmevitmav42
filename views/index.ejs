@@ -11,16 +11,15 @@
                 showSuccess("Sikeres törlés");
                 let resObj = JSON.parse(xhr.responseText);
                 const id = resObj["_id"];
-                document.getElementById("row-"+id).remove();
+                document.getElementById("row-" + id).remove();
+            } else if (xhr.readyState === 4 && xhr.status >= 400) {
+                console.log(xhr.responseText);
+                showError("Nem sikerült a törlés:" + xhr.responseText);
             }
         };
 
-        xhr.onerror = function (err) {
-            console.log(err);
-            showError("Nem sikerült a törlés. Hibaüzenet a konzolon.");
-        }
 
-        xhr.open('DELETE', '/shepherd/delete/'+shepherdId, true);
+        xhr.open('DELETE', '/shepherd/delete/' + shepherdId, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send();
     }
@@ -43,19 +42,24 @@
 
     <h1>List of the shepherds</h1>
     <p>Here you can manage the shepherds.</p>
-    <p style="font-style: italic">Majd tervezek csinálni egy minimális authentikációt is, úgy hogy csak simán egy alert fogja kérdezni a beégetett jelszót.</p>
+    <p style="font-style: italic">Majd tervezek csinálni egy minimális authentikációt is, úgy hogy csak simán egy alert
+        fogja kérdezni a beégetett jelszót.</p>
 
     <a style="margin-top: 10px" class="btn btn-outline-primary" href="/shepherd/new">Add a new shepherd</a>
     <a style="margin-top: 10px; margin-left: 10px" class="btn btn-outline-primary" href="/animals/list">Manage
         animals</a>
-    <div class="row" style="margin-top: 20px">
-        <div class="col-10">
-            <input type="text" style="width: 100%" name="search" class="form-control" id="search"
-                   placeholder="Search for name and area">
-        </div>
-        <div class="col-2">
-            <button class="btn btn-outline-primary" style="width: 100%">Search</button>
-        </div>
+    <div  style="margin-top: 20px; margin-left: 1px">
+        <form method="GET" action="/shepherd/search">
+            <div class="form-group row">
+                <div class="col-9">
+                    <input type="text" name="query" class="form-control"
+                           placeholder="Search for name and area"
+                           value="<%= typeof query == 'undefined' ? null : query %>">
+                </div>
+                <button type="submit" class="btn btn-outline-primary col-2">Search</button>
+            </div>
+
+        </form>
     </div>
 
     <div style="margin-top: 20px">
@@ -73,7 +77,7 @@
                 <tr id="row-<%= s._id %>">
                     <td><%= s.name %></td>
                     <td><%= s.area %></td>
-                    <td>TODO</td>
+                    <td><%= s.animals.map(a => a.animal.name).join(', ') %></td>
                     <td style="text-align: center" class="row">
                         <div class="col-3">&nbsp;</div>
                         <div class="col-2">

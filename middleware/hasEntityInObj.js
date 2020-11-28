@@ -2,7 +2,7 @@
 const required_attributes = {
     shepherd: ['name','area','born'],
     animal: ['name','cost'],
-    //shepherd_animal: ['animal_id','quantity','shepherd_id']
+    shepherd_animal: ['animal_id','quantity']
 
 };
 

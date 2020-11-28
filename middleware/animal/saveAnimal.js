@@ -25,13 +25,13 @@ module.exports = function (objectrepository) {
             }
             toBeSaved.save(function (err, doc) {
                 if (!!err) {
-                    res.status(400).send({message: "Nem sikerült a hozzaadas"});
+                    res.status(400).json({message: "Nem sikerült a hozzaadas"});
                     return;
                 }
                 res.json(doc);
             });
             } else {
-                res.status(400).send({message: 'Not valid animal...'});
+                res.status(400).json({message: 'Not valid animal...'});
             }
     };
 };

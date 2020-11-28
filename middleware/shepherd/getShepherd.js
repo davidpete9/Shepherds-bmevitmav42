@@ -1,4 +1,3 @@
-
 /**
  * Visszater az id-val megadott pasztorral, es az ő osszes állatával.
  * Valahogy így:
@@ -24,11 +23,13 @@ module.exports = function (objectrepository) {
             throw Error("shepherdid  not found");
         }
         const id = req.params['shepherdid'];
-        shepherdModel.findOne({_id: id}, (err, shepherd) => {
+        shepherdModel.findOne({_id: id}).populate({
+            path: 'animals',
+            populate: {path: 'animal'}
+        }).exec((err, shepherd) => {
             if (err) {
                 return next(err);
             }
-            shepherd.animals = [];
             res.locals.shepherd = shepherd;
             return next();
         });

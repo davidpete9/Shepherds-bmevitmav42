@@ -6,6 +6,7 @@
  *
  */
 const requireOption = require('../requireOption');
+const fs = require('fs');
 
 module.exports = function (objectrepository) {
     return function (req, res, next) {
@@ -13,7 +14,14 @@ module.exports = function (objectrepository) {
             if (err) {
                 res.status(500).send("A torles nem sikerult");
             }
-            res.json(d);
+            if (!!d.image_path) {
+                fs.unlink('./public'+d.image_path, function() {
+                     res.json(d);
+                });
+            }
+            else {
+                res.json(d);
+            }
         })
     };
 };

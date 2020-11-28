@@ -29,17 +29,14 @@
                 else {
                     clearEditFields(animal_id);
                 }
-
                 showSuccess("Sikeres mentés!");
-
                  */
             }
+            else if (xhr.readyState === 4 && xhr.status >= 400) {
+                console.log(xhr.responseText);
+                showError("Nem sikerült a mentés:"+xhr.responseText);
+            }
         };
-
-        xhr.onerror = function (err) {
-            console.log(err);
-           showError("Nem sikerült a mentés. Hibaüzenet a konzolon.");
-        }
 
         if (!editing) {
             xhr.open('POST', '/animals/new', true);
@@ -100,12 +97,11 @@
                 const id = resObj["_id"];
                 document.getElementById("row-"+id).remove();
             }
+            else if (xhr.readyState === 4 && xhr.status >= 400) {
+                console.log(xhr.responseText);
+                showError("Nem sikerült a törlés:"+xhr.responseText);
+            }
         };
-
-        xhr.onerror = function (err) {
-            console.log(err);
-            showError("Nem sikerült a törlés. Hibaüzenet a konzolon.");
-        }
 
         xhr.open('DELETE', '/animals/'+animalId+'/delete', true);
         xhr.setRequestHeader("Content-Type", "application/json");

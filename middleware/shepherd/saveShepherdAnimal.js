@@ -5,18 +5,37 @@
  */
 const requireOption = require('../requireOption');
 
+const hasEntityInObj = require('../hasEntityInObj');
+
 module.exports = function (objectrepository) {
     const shepherdAnimal = requireOption(objectrepository, 'shepherdAnimalModel');
+
     return function (req, res, next) {
-        let animal_id = req.body.animal_id;
-        let quantity = req.body.quantity;
-        let toS = new shepherdAnimal({quantity: quantity, animal: animal_id, shepherd: req.params['shepherdid']});
-        toS.save(function (err, doc) {
-            if (!!err) {
-                res.status(400).send({message: "Nem sikerült a hozzaadas"});
+        if (hasEntityInObj(req.body, 'shepherd_animal') && !!res.locals.shepherd) {
+
+            if (parseInt(req.body.quantity) < 0) {
+                res.status(400).send("nem lehet negativ darabszam...");
                 return;
             }
-            return res.json(doc);
-        });
+
+            let toS = new shepherdAnimal({quantity: req.body.quantity, animal: req.body.animal_id});
+            toS.save(function (err, doc) {
+                if (!!err) {
+                    res.status(400).send({message: "Nem sikerült a hozzaadas"});
+                    return;
+                }
+                res.locals.shepherd.animals.push(doc);
+                res.locals.shepherd.save(
+                    function (err, doc) {
+                        if (!!err) {
+                            res.status(400).json({message: "Nem sikerült a hozzaadas"});
+                            return;
+                        }
+                        return res.json(doc);
+                    });
+            });
+        } else {
+            res.status(400).json({message: 'Not valid sherpherd animal...'});
+        }
     };
 };

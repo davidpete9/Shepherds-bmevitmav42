@@ -12,7 +12,12 @@ const saveAnimal = require('../middleware/animal/saveAnimal');
 const saveShepherdAnimal = require('../middleware/shepherd/saveShepherdAnimal');
 const updateShepherdAnimal = require('../middleware/shepherd/updateShepherdAnimal');
 const deleteShepherdAnimal = require('../middleware/shepherd/deleteShepherdAnimal');
+const getShepherdAnimal = require('../middleware/shepherd/getShepherdAnimal');
 const uploadFile = require('../middleware/shepherd/uploadFile');
+const filterShepherds = require('../middleware/shepherd/filterShepherds');
+const logoutMW = require('../middleware/auth/logoutMV');
+
+
 
 const shepherdModel = require('../models/shepherd');
 const animalModel= require('../models/animal');
@@ -32,6 +37,12 @@ module.exports = function (app) {
         authMW(objRepo),
         listShepherds(objRepo),
         renderMW(objRepo, 'index'));
+
+    app.use('/shepherd/search',
+        authMW(objRepo),
+        filterShepherds(objRepo),
+        renderMW(objRepo, 'index')
+        );
 
     app.use('/shepherd/update/:shepherdid',
         authMW(objRepo),
@@ -61,21 +72,21 @@ module.exports = function (app) {
     /* ------------------------------ PASZTOROK ALLATAI -------------------------------- */
     /* Ezek kozul minden csak AJAX-osan lesz hivva, es JSON-nel  fog visszaterni.*/
 
-    app.post('/shepherds/:shepherdid/animals/new',
+    app.post('/shepherd/:shepherdid/animals/new',
         authMW(objRepo),
         getShepherd(objRepo),
         saveShepherdAnimal(objRepo));
 
-
-    app.post('/shepherd/:shepherdid/animals/update/:animalid',
+    app.delete('/shepherdanimal/delete/:shepherdanimalid',
         authMW(objRepo),
-        getShepherd(objRepo),
+        getShepherdAnimal(objRepo),
+        deleteShepherdAnimal(objRepo));
+
+    app.put('/shepherdanimals/update/:shepherdanimalid',
+        authMW(objRepo),
+        getShepherdAnimal(objRepo),
         updateShepherdAnimal(objRepo));
 
-    app.delete('/shepherd/:shepherdid/animals/delete/:animalid',
-        authMW(objRepo),
-        getShepherd(objRepo),
-        deleteShepherdAnimal(objRepo));
 
 
     /*-------------------ALLATOK------------------------------*/
@@ -102,11 +113,18 @@ module.exports = function (app) {
         getAnimal(objRepo),
         deleteAnimal(objRepo));
 
-    app.get('/',
+    app.use('/login',
         checkPassMW(objRepo),
-        function (req, res, next) {
-            res.redirect('/list');
-        }
+        renderMW(objRepo,'askpass')
+    );
+
+    app.use('/logout', logoutMW(objRepo));
+
+    app.use('/',
+        authMW(objRepo),
+         function (req, res, next) {
+            return res.redirect('/list');
+         }
     );
 
 };

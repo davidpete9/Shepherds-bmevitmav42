@@ -8,12 +8,14 @@
  *        ...
  *        'animals': [
  *           {
- *
- *               'name': 'Kecske', <---- betoltom az allat osszes adatat
  *               'cost': 32000,
  *               'animal_id': 42
+ *               'animal': {
+ *                   'name': 'Kecske',
+ *                   'quantity': 43,
+ *                   '_id': '42'
+ *               }
  *
- *               'quantity': 5    <--- tehat ide betoltom azt IS, hogy hany darab van belole neki.
  *           },
  *           {
  *               ...
@@ -32,11 +34,10 @@ module.exports = function (objectrepository) {
 
     return function (req, res, next) {
 
-        shepherdModel.find({}).populate('ShepherdAnimal').exec((err, shepherds) => {
+        shepherdModel.find({}).populate({path:'animals', populate: {path: 'animal'}}).exec((err, shepherds) => {
             if (err) {
                 return next(err);
             }
-            console.log(shepherds);
             res.locals.shepherds = shepherds;
             return next();
         });

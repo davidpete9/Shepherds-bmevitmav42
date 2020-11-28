@@ -6,11 +6,12 @@
 
 module.exports = function (objectrepository) {
     return function (req, res, next) {
-        if (!req.files || Object.keys(req.files).length === 0) {
+        console.log(req.body.files);
+        if (req.method !== "POST" || !req.files || Object.keys(req.files).length === 0) {
             return next();
         }
         let profilePic = req.files['profile_img'];
-        console.log(profilePic);
+
         if (!profilePic) {
             return next();
         }
@@ -20,14 +21,15 @@ module.exports = function (objectrepository) {
             res.status(400).send("Not an image!");
         }
 
-        let extension = profilePic.filename.substr(profilePic.filename.lastIndexOf('.'));
+        let extension = profilePic.name.substr(profilePic.name.lastIndexOf('.'));
         let new_filename = new Date().valueOf()+extension;  //csak hogy tutira egyedi legyen...
-
-        profilePic.mv('/images/'+new_filename, function(err) {
+        profilePic.mv('public/'+new_filename, function(err) {
             if (err)
                 return res.status(500).send(err);
-            res.locals.uploaded_image_path = '/images/'+new_filename;
+            res.locals.uploaded_image_path = '/'+new_filename;
+            console.log(profilePic);
             return next();
         });
+
     };
 };
