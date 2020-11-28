@@ -1,5 +1,44 @@
 <%- include('header', {pagetitle: 'List of the shepherds'}) -%>
+<script>
+    function deleteShepherd(shepherdId) {
+        if (!confirm('Are you sure?')) {
+            return;
+        }
 
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                showSuccess("Sikeres törlés");
+                let resObj = JSON.parse(xhr.responseText);
+                const id = resObj["_id"];
+                document.getElementById("row-"+id).remove();
+            }
+        };
+
+        xhr.onerror = function (err) {
+            console.log(err);
+            showError("Nem sikerült a törlés. Hibaüzenet a konzolon.");
+        }
+
+        xhr.open('DELETE', '/shepherd/delete/'+shepherdId, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send();
+    }
+
+    function showError(msg) {
+        document.getElementById('success-alert').style.display = 'none';
+        let alert = document.getElementById('error-alert');
+        alert.style.display = 'block';
+        alert.innerHTML = msg;
+    }
+
+    function showSuccess(msg) {
+        document.getElementById('error-alert').style.display = 'none';
+        let alert = document.getElementById('success-alert');
+        alert.style.display = 'block';
+        alert.innerHTML = msg;
+    }
+</script>
 <div class="container" style="padding: 20px">
 
     <h1>List of the shepherds</h1>
@@ -31,10 +70,10 @@
             </thead>
             <tbody>
             <% shepherds.forEach(function(s){ %>
-                <tr>
+                <tr id="row-<%= s._id %>">
                     <td><%= s.name %></td>
                     <td><%= s.area %></td>
-                    <td><%= s.animals.map(e => e.name).join(', ') %></td>
+                    <td>TODO</td>
                     <td style="text-align: center" class="row">
                         <div class="col-3">&nbsp;</div>
                         <div class="col-2">
@@ -59,7 +98,7 @@
                         </div>
                         <div class="col-2">
                             <button type="button" class=" btn  btn-sm btn-outline-danger"
-                                    onclick="(function() {confirm('Are you sure?');})()">
+                                    onclick="deleteShepherd('<%= s._id %>')">
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash"
                                      fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>

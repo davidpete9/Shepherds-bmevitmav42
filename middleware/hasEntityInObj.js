@@ -22,3 +22,5 @@ function hasEntityInObj(req_body, entityName) {
     return true;
 
 }
+
+module.exports = hasEntityInObj;

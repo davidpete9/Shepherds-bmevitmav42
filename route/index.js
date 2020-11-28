@@ -12,10 +12,18 @@ const saveAnimal = require('../middleware/animal/saveAnimal');
 const saveShepherdAnimal = require('../middleware/shepherd/saveShepherdAnimal');
 const updateShepherdAnimal = require('../middleware/shepherd/updateShepherdAnimal');
 const deleteShepherdAnimal = require('../middleware/shepherd/deleteShepherdAnimal');
+const uploadFile = require('../middleware/shepherd/uploadFile');
+
+const shepherdModel = require('../models/shepherd');
+const animalModel= require('../models/animal');
+const shepherdAnimalModel= require('../models/shepherd_animals');
 
 module.exports = function (app) {
-    const objRepo = {};
-
+    const objRepo = {
+        shepherdModel: shepherdModel,
+        animalModel: animalModel,
+        shepherdAnimalModel: shepherdAnimalModel
+    };
 
 
    /* ------------------------------ PASZTOROK -------------------------------- */
@@ -25,14 +33,16 @@ module.exports = function (app) {
         listShepherds(objRepo),
         renderMW(objRepo, 'index'));
 
-    app.use('/shepherd/new',
+    app.use('/shepherd/update/:shepherdid',
         authMW(objRepo),
+        uploadFile(objRepo),
+        getShepherd(objRepo),
         saveShepherd(objRepo),
         renderMW(objRepo, 'shepherdform'));
 
-    app.use('/shepherd/update/:shepherdid',
+    app.use('/shepherd/new',
         authMW(objRepo),
-        getShepherd(objRepo),
+        uploadFile(objRepo),
         saveShepherd(objRepo),
         renderMW(objRepo, 'shepherdform'));
 
@@ -43,7 +53,7 @@ module.exports = function (app) {
         renderMW(objRepo, 'details'));
 
     /* AJAX-osan lesz hivva mindig, ezert JSON-nel ter vissza */
-    app.delete('/shepherd/delete/:shepherdid/',
+    app.delete('/shepherd/delete/:shepherdid',
         authMW(objRepo),
         getShepherd(objRepo),
         deleteShepherd(objRepo));
@@ -51,7 +61,7 @@ module.exports = function (app) {
     /* ------------------------------ PASZTOROK ALLATAI -------------------------------- */
     /* Ezek kozul minden csak AJAX-osan lesz hivva, es JSON-nel  fog visszaterni.*/
 
-    app.post('/shepherd/:shepherdid/animals/new',
+    app.post('/shepherds/:shepherdid/animals/new',
         authMW(objRepo),
         getShepherd(objRepo),
         saveShepherdAnimal(objRepo));
@@ -82,16 +92,15 @@ module.exports = function (app) {
         authMW(objRepo),
         saveAnimal(objRepo));
 
-    app.put('/animals/:animaid/update',
+    app.put('/animals/:animalid/update',
         authMW(objRepo),
         getAnimal(objRepo),
         saveAnimal(objRepo));
 
-    app.delete('/animals/animaid/delete',
+    app.delete('/animals/:animalid/delete',
         authMW(objRepo),
         getAnimal(objRepo),
         deleteAnimal(objRepo));
-
 
     app.get('/',
         checkPassMW(objRepo),

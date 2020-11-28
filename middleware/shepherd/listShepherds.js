@@ -27,36 +27,18 @@
 const requireOption = require('../requireOption');
 
 module.exports = function (objectrepository) {
+    const shepherdModel = requireOption(objectrepository, 'shepherdModel');
+
+
     return function (req, res, next) {
 
-        res.locals.shepherds = [
-            {
-                _id: 42,
-                name: 'Pista',
-                area: 'Alföld',
-                animals: [
-                    {
-                        name: 'kecske'
-                    },
-                    {
-                        name: 'malac'
-                    }
-                ]
-            },
-            {
-                _id: 11,
-                name: 'János',
-                area: 'Hortobágy',
-                animals: [
-                    {
-                        name: 'bika'
-                    },
-                    {
-                        name: 'ló'
-                    }
-                ]
-            },
-        ];
-        next();
+        shepherdModel.find({}).populate('ShepherdAnimal').exec((err, shepherds) => {
+            if (err) {
+                return next(err);
+            }
+            console.log(shepherds);
+            res.locals.shepherds = shepherds;
+            return next();
+        });
     };
 };

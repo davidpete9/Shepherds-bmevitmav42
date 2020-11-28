@@ -18,29 +18,20 @@
 const requireOption = require('../requireOption');
 
 module.exports = function (objectrepository) {
+    const shepherdModel = requireOption(objectrepository, 'shepherdModel');
     return function (req, res, next) {
+        if (!req.params.hasOwnProperty('shepherdid') || !req.params['shepherdid']) {
+            throw Error("shepherdid  not found");
+        }
+        const id = req.params['shepherdid'];
+        shepherdModel.findOne({_id: id}, (err, shepherd) => {
+            if (err) {
+                return next(err);
+            }
+            shepherd.animals = [];
+            res.locals.shepherd = shepherd;
+            return next();
+        });
 
-
-        //model.find( {_ii: req.params.id})
-        res.locals.shepherd = {
-            _id : 42,
-            name: 'Pista',
-            area: 'Alföld',
-            animals: [
-                {
-                    name: 'kecske',
-                    cost: 32000,
-                    quantity: 42
-                },
-                {
-                    name: 'malac',
-                    cost: 23500,
-                    quantity: 32
-                }
-            ]
-        };
-
-
-        next();
     };
 };

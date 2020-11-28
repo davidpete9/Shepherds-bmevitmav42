@@ -1,19 +1,16 @@
-//const animalModel = require('./models/animal');
-/*let animal = new animalModel();
-animal.name = "Kecske";
-animal.avg_cost = 223;
-animal.save((e) => console.log(e));
 
 
-animalModel.find({}, (e, d) => {console.log(d)});
-*/
 
-
+const bodyParser = require('body-parser');
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const app = express();
 
 app.set('view engine','ejs');
+app.use(fileUpload({createParentPath: true}));
 app.use(express.static('public'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(function (req, res, next) {
@@ -30,5 +27,4 @@ require('./route/index')(app);
 app.listen(3000, function () {
     console.log('Hello :3000');
 });
-
 

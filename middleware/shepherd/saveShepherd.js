@@ -9,37 +9,53 @@
  */
 const requireOption = require('../requireOption');
 
-const helpers = require('../helpers');
+const hasEntityInObj = require('../hasEntityInObj');
 
 module.exports = function (objectrepository) {
+    const animalModel = requireOption(objectrepository, 'shepherdModel');
     return function (req, res, next) {
 
         if (req.method === 'GET') {
             if (!!res.locals.shepherd && !!res.locals.shepherd._id) {
                 res.locals.mode = 'Updating';
-            }
-            else  {
+            } else {
                 //Bizonyara uj paszor lesz, mert nincsen id-ja.
                 res.locals.mode = 'Creating';
                 res.locals.shepherd = {};
             }
             return next();
-        }
-        else if (req.method === 'POST') {
+        } else if (req.method === 'POST') {
             if (hasEntityInObj(req.body, 'shepherd')) { //erkezett valid pasztor a req-bol
-
-                if (req.body.hasOwnProperty('shepherd_id') && !!req.body.shepherd_id) {
-                    //Modositani kell
+                let toBeSaved = null;
+                if (req.body.hasOwnProperty('_id') && !!req.body._id) {
+                    toBeSaved = res.locals.shepherd;
+                    toBeSaved.name = req.body.name;
+                    toBeSaved.area = req.body.area;
+                    toBeSaved.born = req.body.born;
+                    toBeSaved.address = req.body.address;
                 } else {
-                    //Hozzad kell adni a db-hez az uj pasztort.
+                    toBeSaved = new animalModel({
+                        name: req.body.name,
+                        area: req.body.area,
+                        born: req.body.born,
+                        address: req.body.address
+                    });
                 }
-                /* ... */
-                res.locals.shepherd = null;
-                return next();
+                if (!!req.body['profile_img'] && !!res.locals.uploaded_image_path) {
+                    toBeSaved.image_path = res.locals.uploaded_image_path;
+                    res.locals.uploaded_image_path = null;
+                }
+                toBeSaved.save(function (err, doc) {
+                    if (!!err) {
+                        res.status(400).send({message: "Nem sikerült a hozzaadas"});
+                        return;
+                    }
+                    return res.redirect('/list');
+                });
             }
-            else {
-                res.status(400).send('Not valid sherpherd...');
-            }
+
+        } else {
+            res.status(400).send('Not valid sherpherd...');
         }
-    };
+    }
 };

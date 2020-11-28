@@ -3,11 +3,11 @@ const db = require('../config/db');
 
 const shepherd_animal = db.model('ShepherdAnimal', {
     quantity: Number,
-    _owner: {
+    shepherd: {
         type: Schema.Types.ObjectId,
         ref: 'Shepherd'
     },
-    _kind: {
+    animal: {
         type: Schema.Types.ObjectId,
         ref: 'Animal'
     }
