@@ -13,7 +13,7 @@ module.exports = function (objectrepository) {
 
     return function (req, res, next) {
         if (!req.params.hasOwnProperty('animalid') || !req.params['animalid']) {
-            throw Error("animal id not found");
+            throw new Error("animal id not found");
         }
         const id = req.params['animalid'];
         animalModel.findOne({_id: id}, (err, animal) => {
